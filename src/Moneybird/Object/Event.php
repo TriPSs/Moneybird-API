@@ -2,7 +2,7 @@
 
 namespace Moneybird\Object;
 
-class Events {
+class Event {
 
     public $administration_id;
 

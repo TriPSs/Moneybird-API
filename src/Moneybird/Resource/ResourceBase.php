@@ -205,17 +205,21 @@ abstract class ResourceBase {
     protected function copy($apiResult, $object) {
         foreach ($apiResult as $property => $value) {
             if (is_object($value) || is_array($value)) {
-                $className = "Moneybird\\Object\\" . ucfirst($property);
+                if (is_object($value)) {
+                    $className = "Moneybird\\Object\\" . ucfirst($property);
 
-                if (class_exists($className)) {
-                    if (is_object($value))
+                    if (class_exists($className))
                         $object->$property = $this->copy($value, new $className);
 
-                    else if (is_array($value)) {
+                } else if (is_array($value)) {
+                    $className = "Moneybird\\Object\\" . ucfirst(substr($property, 0, -1));
+
+                    if (class_exists($className)) {
                         foreach ($value as $valueObject) {
                             $object->$property[] = $this->copy($valueObject, new $className);
                         }
                     }
+
                 } else
                     $object->$property = $value;
 
