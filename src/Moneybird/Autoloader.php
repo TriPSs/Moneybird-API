@@ -9,8 +9,7 @@ class Autoloader {
     public static function autoload($className) {
         if (strpos($className, "Moneybird") === 0) {
             $fileName = str_replace("\\", "/", $className);
-
-            $fileName = realpath(dirname(__FILE__) . "/{$fileName}.php");
+            $fileName = realpath(dirname(__DIR__) . "/{$fileName}.php");
 
             if ($fileName !== FALSE) {
                 require $fileName;

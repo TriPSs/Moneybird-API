@@ -4,8 +4,11 @@ namespace Moneybird\Resource;
 
 use Moneybird\Client;
 use Moneybird\Exception;
+use Moneybird\Object\ObjectList;
 
 abstract class ResourceBase {
+
+    const API_EXTENSION = Client::API_EXTENSION;
 
     const REST_CREATE = Client::HTTP_POST;
     const REST_UPDATE = Client::HTTP_POST;
@@ -16,7 +19,12 @@ abstract class ResourceBase {
     /**
      * Default number of objects to retrieve when listing all objects.
      */
-    const DEFAULT_LIMIT = 50;
+    const DEFAULT_PER_PAGE = 50;
+
+    /**
+     * Default page number.
+     */
+    const DEFAULT_PAGE = 1;
 
     /**
      * @var Client
@@ -31,18 +39,13 @@ abstract class ResourceBase {
     /**
      * @var string|null
      */
-    protected $parent_id;
+    protected $parentId;
 
     /**
      * @param Client $api
      */
     public function __construct(Client $api) {
         $this->api = $api;
-
-        if (empty($this->resourcePath)) {
-            $classParts         = explode("/", get_class($this));
-            $this->resourcePath = strtolower(end($classParts));
-        }
     }
 
     /**
@@ -61,17 +64,17 @@ abstract class ResourceBase {
     }
 
     /**
-     * @param string $rest_resource
+     * @param string $restResource
      * @param        $body
      * @param array  $filters
      *
      * @return object
      * @throws Exception
      */
-    private function rest_create($rest_resource, $body, array $filters) {
+    private function restCreate($restResource, $body, array $filters) {
         $result = $this->performApiCall(
             self::REST_CREATE,
-            $rest_resource . $this->buildQueryString($filters),
+            $restResource . $this->buildQueryString($filters),
             $body
         );
 
@@ -132,14 +135,14 @@ abstract class ResourceBase {
     /**
      * Sends a POST request to a single Molle API object to update it.
      *
-     * @param string $rest_resource
+     * @param string $restResource
      * @param string $id
      * @param string $body
      *
      * @return object
      * @throws Exception
      */
-    protected function rest_update($rest_resource, $id, $body) {
+    protected function restUpdate($restResource, $id, $body) {
         if (empty($id)) {
             throw new Exception("Invalid resource id.");
         }
@@ -147,7 +150,7 @@ abstract class ResourceBase {
         $id     = urlencode($id);
         $result = $this->performApiCall(
             self::REST_UPDATE,
-            "{$rest_resource}/{$id}",
+            "{$restResource}/{$id}",
             $body
         );
 
@@ -157,29 +160,36 @@ abstract class ResourceBase {
     /**
      * Get a collection of objects from the REST API.
      *
-     * @param       $rest_resource
-     * @param int   $offset
-     * @param int   $limit
+     * @param       $restResource
      * @param array $filters
+     * @param int   $page
+     * @param int   $perPage
      *
-     * @return Moneybird_API_Object_List
+     * @return ObjectList
      */
-    private function restList($rest_resource, $offset = 0, $limit = self::DEFAULT_LIMIT, array $filters) {
+    private function restList($restResource, array $filters, $page = self::DEFAULT_PAGE, $perPage = self::DEFAULT_PER_PAGE) {
         $filters = array_merge([
-                                   "offset" => $offset,
-                                   "count"  => $limit,
+                                   "page"     => $page,
+                                   "per_page" => $perPage,
                                ], $filters);
 
-        $api_path = $rest_resource . $this->buildQueryString($filters);
+        $apiPath = $restResource . $this->buildQueryString($filters);
 
-        $result = $this->performApiCall(self::REST_LIST, $api_path);
+        $result = $this->performApiCall(self::REST_LIST, $apiPath);
 
-        /** @var Moneybird_API_Object_List $collection */
-        $collection = $this->copy($result, new Moneybird_API_Object_List);
+        /** @var ObjectList $collection */
+        $collection = new ObjectList();
 
-        foreach ($result->data as $data_result) {
-            $collection[] = $this->copy($data_result, $this->getResourceObject());
+        $collection->page     = $page;
+        $collection->per_page = $perPage;
+        $collection->filters  = $filters;
+
+        foreach ($result as $dataResult) {
+            $collection[] = $this->copy($dataResult, $this->getResourceObject());
         }
+
+        print_r($collection);
+        die;
 
         return $collection;
     }
@@ -194,7 +204,23 @@ abstract class ResourceBase {
      */
     protected function copy($apiResult, $object) {
         foreach ($apiResult as $property => $value) {
-            $object->$property = $value;
+            if (is_object($value) || is_array($value)) {
+                $className = "Moneybird\\Object\\" . ucfirst($property);
+
+                if (class_exists($className)) {
+                    if (is_object($value))
+                        $object->$property = $this->copy($value, new $className);
+
+                    else if (is_array($value)) {
+                        foreach ($value as $valueObject) {
+                            $object->$property[] = $this->copy($valueObject, new $className);
+                        }
+                    }
+                } else
+                    $object->$property = $value;
+
+            } else
+                $object->$property = $value;
         }
 
         return $object;
@@ -229,7 +255,7 @@ abstract class ResourceBase {
             }
         }
 
-        return $this->rest_create($this->getResourcePath(), $encoded, $filters);
+        return $this->restCreate($this->getResourcePath(), $encoded, $filters);
     }
 
     /**
@@ -264,28 +290,28 @@ abstract class ResourceBase {
     /**
      * Retrieve all objects of a certain resource.
      *
-     * @param int   $offset
-     * @param int   $limit
      * @param array $filters
+     * @param int   $page
+     * @param int   $perPage
      *
-     * @return Moneybird_API_Object_List
+     * @return ObjectList
      */
-    public function all($offset = 0, $limit = 0, array $filters = []) {
-        return $this->restList($this->getResourcePath(), $offset, $limit, $filters);
+    public function all(array $filters = [], $page = self::DEFAULT_PAGE, $perPage = self::DEFAULT_PER_PAGE) {
+        return $this->restList($this->getResourcePath(), $filters, $page, $perPage);
     }
 
     /**
      * Perform an API call, and interpret the results and convert them to correct objects.
      *
-     * @param      $http_method
-     * @param      $api_method
-     * @param null $http_body
+     * @param      $httpMethod
+     * @param      $apiMethod
+     * @param null $httpBody
      *
      * @return object
      * @throws Exception
      */
-    protected function performApiCall($http_method, $api_method, $http_body = NULL) {
-        $body = $this->api->performHttpCall($http_method, $api_method, $http_body);
+    protected function performApiCall($httpMethod, $apiMethod, $httpBody = NULL) {
+        $body = $this->api->performHttpCall($httpMethod, $apiMethod, $httpBody);
 
         if ($this->api->getLastHttpResponseStatusCode() == Client::HTTP_STATUS_NO_CONTENT) {
             return NULL;
@@ -325,19 +351,7 @@ abstract class ResourceBase {
      * @return string
      * @throws Exception
      */
-    public function getResourcePath() {
-        if (strpos($this->resourcePath, "_") !== FALSE) {
-            list($parent_resource, $child_resource) = explode("_", $this->resourcePath, 2);
-
-            if (!strlen($this->parent_id)) {
-                throw new Exception("Subresource '{$this->resourcePath}' used without parent '$parent_resource' ID.");
-            }
-
-            return "$parent_resource/{$this->parent_id}/$child_resource";
-        }
-
-        return $this->resourcePath;
-    }
+    abstract protected function getResourcePath();
 
     /**
      * @param string $parent_id
@@ -345,7 +359,7 @@ abstract class ResourceBase {
      * @return $this
      */
     public function withParentId($parent_id) {
-        $this->parent_id = $parent_id;
+        $this->parentId = $parent_id;
 
         return $this;
     }

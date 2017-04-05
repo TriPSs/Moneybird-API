@@ -3,6 +3,7 @@
 namespace Moneybird;
 
 use Moneybird\Exception\IncompatiblePlatformException;
+use Moneybird\Resource\SalesInvoices;
 use Moneybird\Resource\Undefined as UndefinedResource;
 
 class Client {
@@ -15,7 +16,12 @@ class Client {
     /**
      * Endpoint of the remote API.
      */
-    const API_ENDPOINT = "https://api.moneybird.nl";
+    const API_ENDPOINT = "https://moneybird.com/api";
+
+    /**
+     * Extension of the remote API
+     */
+    const API_EXTENSION = ".json";
 
     /**
      * Version of the remote API.
@@ -34,14 +40,21 @@ class Client {
     protected $apiEndpoint = self::API_ENDPOINT;
 
     /**
-     * @var
+     * RESTful Sales invoices resource.
+     *
+     * @var SalesInvoices
+     */
+    public $salesInvoices;
+
+    /**
+     * @var string
      */
     protected $accessToken;
 
     /**
-     * @var array
+     * @var string
      */
-    protected $versionStrings = [];
+    protected $administrationID;
 
     /**
      * @var resource
@@ -60,12 +73,7 @@ class Client {
         $this->getCompatibilityChecker()
              ->checkCompatibility();
 
-        $curl_version = curl_version();
-
-        $this->addVersionString("Moneybird/" . self::CLIENT_VERSION);
-        $this->addVersionString("PHP/" . phpversion());
-        $this->addVersionString("cURL/" . $curl_version[ "version" ]);
-        $this->addVersionString($curl_version[ "ssl_version" ]);
+        $this->salesInvoices = new SalesInvoices($this);
     }
 
     /**
@@ -81,53 +89,38 @@ class Client {
     }
 
     /**
-     * @param string $url
-     */
-    public function setApiEndpoint($url) {
-        $this->apiEndpoint = rtrim(trim($url), '/');
-    }
-
-    /**
-     * @return string
-     */
-    public function getApiEndpoint() {
-        return $this->apiEndpoint;
-    }
-
-    /**
      * @param string $accessToken The access token generated in Moneybird
      *
-     * @throws Exception
+     * @return $this
      */
     public function setAccessToken($accessToken) {
         $this->accessToken = trim($accessToken);
+
+        return $this;
     }
 
     /**
-     * @param string $version_string
+     * @param string $administrationID ID of the administration
+     *
+     * @return $this
      */
-    public function addVersionString($version_string) {
-        $this->versionStrings[] = str_replace([
-                                                  " ",
-                                                  "\t",
-                                                  "\n",
-                                                  "\r",
-                                              ], '-', $version_string);
+    public function setAdministrationID($administrationID) {
+        $this->administrationID = $administrationID;
+
+        return $this;
     }
 
     /**
      * Perform an http call. This method is used by the resource specific classes.
      *
-     * @param $http_method
-     * @param $api_method
-     * @param $http_body
+     * @param $httpMethod
+     * @param $apiMethod
+     * @param $httpBody
      *
      * @return string
      * @throws Exception
-     *
-     * @codeCoverageIgnore
      */
-    public function performHttpCall($http_method, $api_method, $http_body = NULL) {
+    public function performHttpCall($httpMethod, $apiMethod, $httpBody = NULL) {
         if (empty($this->accessToken)) {
             throw new Exception("You have not set an access token. Please use setAccessToken() to set the access token.");
         }
@@ -144,35 +137,29 @@ class Client {
             curl_reset($this->ch);
         }
 
-        $url = $this->apiEndpoint . "/" . self::API_VERSION . "/" . $api_method;
+        $url = $this->apiEndpoint . "/" . self::API_VERSION . "/{$this->administrationID}/" . $apiMethod;
 
         curl_setopt($this->ch, CURLOPT_URL, $url);
         curl_setopt($this->ch, CURLOPT_RETURNTRANSFER, TRUE);
         curl_setopt($this->ch, CURLOPT_TIMEOUT, 10);
         curl_setopt($this->ch, CURLOPT_ENCODING, "");
 
-        $request_headers = [
+        $requestHeaders = [
             "Accept: application/json",
             "Authorization: Bearer {$this->accessToken}",
         ];
 
-        curl_setopt($this->ch, CURLOPT_CUSTOMREQUEST, $http_method);
+        curl_setopt($this->ch, CURLOPT_CUSTOMREQUEST, $httpMethod);
 
-        if ($http_body !== NULL) {
-            $request_headers[] = "Content-Type: application/json";
+        if ($httpBody !== NULL) {
+            $requestHeaders[] = "Content-Type: application/json";
             curl_setopt($this->ch, CURLOPT_POST, 1);
-            curl_setopt($this->ch, CURLOPT_POSTFIELDS, $http_body);
+            curl_setopt($this->ch, CURLOPT_POSTFIELDS, $httpBody);
         }
 
-        curl_setopt($this->ch, CURLOPT_HTTPHEADER, $request_headers);
+        curl_setopt($this->ch, CURLOPT_HTTPHEADER, $requestHeaders);
         curl_setopt($this->ch, CURLOPT_SSL_VERIFYHOST, 2);
         curl_setopt($this->ch, CURLOPT_SSL_VERIFYPEER, TRUE);
-
-        /*
-         * On some servers, the list of installed certificates is outdated or not present at all (the ca-bundle.crt
-         * is not installed). So we tell cURL which certificates we trust.
-         */
-        curl_setopt($this->ch, CURLOPT_CAINFO, $this->pem_path);
 
         $body = curl_exec($this->ch);
 
