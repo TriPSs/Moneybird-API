@@ -1,0 +1,84 @@
+{
+  "swagger": "2.0",
+  "schemes": [
+    "https"
+  ],
+  "host": "moneybird.com",
+  "basePath": "/api/v1",
+  "info": {
+    "description": "# Introduction\n\nMoneybird API Client for PHP\n\n## Getting started\n\nRequiring the included autoloader. If you're using Composer, you can skip this step.\n\n```php\nrequire \"Moneybird/Autoloader.php\";\n```\n\nInitializing the Moneybird API client, and setting your access key and administration id.\n\n```php\n$moneybirdClient = new Client;\n$moneybirdClient->setAccessToken(\"YOUR_ACCESS_TOKEN\")\n                ->setAdministrationID(\"YOUR_ADMINISTRATION_ID\");\n```\n",
+    "version": "1.0.0",
+    "title": "Moneybird API Client for PHP",
+    "contact": {
+      "email": "t.bokdam@seronaris.nl",
+      "url": "https://github.com/TriPss"
+    },
+    "license": {
+      "name": "MIT",
+      "url": "https://github.com/TriPSs/Moneybird-API/blob/master/LICENSE"
+    },
+    "x-logo": {
+      "url": "https://www.moneybird.nl/data/share/moneybird-85febefd.png"
+    }
+  },
+  "produces": [
+    "application/json"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "x-tagGroups": [
+    {
+      "name": "Routes",
+      "tags": [
+        "Sales Invoices"
+      ]
+    }
+  ],
+  "tags": [
+    {
+      "name": "Sales Invoices"
+    }
+  ],
+  "paths": {
+    "/sales_invoices": {
+      "get": {
+        "tags": [
+          "Sales Invoices"
+        ],
+        "summary": "Sales Invoices",
+        "description": "[Official docs](https://developer.moneybird.com/api/sales_invoices/)\n",
+        "operationId": "getAllSalesInvoices",
+        "responses": {
+          "200": {
+            "description": "Successfully fetched Companies",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "records": {
+                  "type": "object",
+                  "properties": {
+                    "test": {
+                      "type": "string",
+                      "example": "a"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No records found!"
+          }
+        },
+        "x-code-samples": [
+          {
+            "lang": "PHP",
+            "source": "// Get all invoices of last year\n$moneybirdClient->salesInvoices->all([\"filter\" => \"prev_year\"]);\n\n// Get all invoices of a contact\n$moneybirdClient->salesInvoices->all([ \"filter\" => \"contact_id:123456789101112234\" ]);"
+          }
+        ]
+      }
+    }
+  },
+  "definitions": {}
+}

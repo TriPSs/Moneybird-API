@@ -8,30 +8,6 @@ To use the Moneybird API client, the following things are required:
 + Create a personal access token. [Can be done here!](https://moneybird.com/user/applications/new)
 + Get your administration id.
 
-## Getting started
-
-Requiring the included autoloader. If you're using Composer, you can skip this step.
-
-```php
-require "Moneybird/Autoloader.php";
-```
-	
-Initializing the Moneybird API client, and setting your access key and administration id.
-
-```php
-$moneybirdClient = new Client;
-$moneybirdClient->setAccessToken("YOUR_ACCESS_TOKEN")
-                ->setAdministrationID("YOUR_ADMINISTRATION_ID");
-```
-
-##### Examples:
-```php
-// Get all invoices of last year
-$moneybirdClient->salesInvoices->all(["filter" => "prev_year"]);
-
-// Get all invoices of a contact
-$moneybirdClient->salesInvoices->all([ "filter" => "contact_id:123456789101112234" ]);
-```
 ## Development
 
 If you'd like to contribute to this project, all you need to do is clone [this repo](https://github.com/TriPSs/Moneybird-API) 

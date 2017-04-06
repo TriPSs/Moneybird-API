@@ -160,7 +160,7 @@ class Client {
         }
 
         $url = $this->apiEndpoint . "/" . self::API_VERSION . "/{$this->administrationID}/" . $apiMethod . self::API_EXTENSION . $queryString;
-        
+
         curl_setopt($this->ch, CURLOPT_URL, $url);
         curl_setopt($this->ch, CURLOPT_RETURNTRANSFER, TRUE);
         curl_setopt($this->ch, CURLOPT_TIMEOUT, 10);

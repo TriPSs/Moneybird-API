@@ -3,3 +3,4 @@
 /composer.lock
 .DS_Store
 composer.phar
+/node_modules

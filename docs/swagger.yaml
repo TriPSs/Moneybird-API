@@ -1,0 +1,78 @@
+swagger: '2.0'
+schemes:
+  - https
+host: moneybird.com
+basePath: /api/v1
+info:
+  description: |
+    # Introduction
+
+    Moneybird API Client for PHP
+
+    ## Getting started
+
+    Requiring the included autoloader. If you're using Composer, you can skip this step.
+
+    ```php
+    require "Moneybird/Autoloader.php";
+    ```
+
+    Initializing the Moneybird API client, and setting your access key and administration id.
+
+    ```php
+    $moneybirdClient = new Client;
+    $moneybirdClient->setAccessToken("YOUR_ACCESS_TOKEN")
+                    ->setAdministrationID("YOUR_ADMINISTRATION_ID");
+    ```
+  version: 1.0.0
+  title: Moneybird API Client for PHP
+  contact:
+    email: t.bokdam@seronaris.nl
+    url: 'https://github.com/TriPss'
+  license:
+    name: MIT
+    url: 'https://github.com/TriPSs/Moneybird-API/blob/master/LICENSE'
+  x-logo:
+    url: 'https://www.moneybird.nl/data/share/moneybird-85febefd.png'
+produces:
+  - application/json
+consumes:
+  - application/json
+x-tagGroups:
+  - name: Routes
+    tags:
+      - Sales Invoices
+tags:
+  - name: Sales Invoices
+paths:
+  /sales_invoices:
+    get:
+      tags:
+        - Sales Invoices
+      summary: Sales Invoices
+      description: |
+        [Official docs](https://developer.moneybird.com/api/sales_invoices/)
+      operationId: getAllSalesInvoices
+      responses:
+        '200':
+          description: Successfully fetched Companies
+          schema:
+            type: object
+            properties:
+              records:
+                type: object
+                properties:
+                  test:
+                    type: string
+                    example: a
+        '404':
+          description: No records found!
+      x-code-samples:
+        - lang: PHP
+          source: |-
+            // Get all invoices of last year
+            $moneybirdClient->salesInvoices->all(["filter" => "prev_year"]);
+
+            // Get all invoices of a contact
+            $moneybirdClient->salesInvoices->all([ "filter" => "contact_id:123456789101112234" ]);
+definitions: {}

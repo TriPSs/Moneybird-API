@@ -1,0 +1,24 @@
+get:
+  tags:
+    - Sales Invoices
+  summary: Sales Invoices
+  description: |
+    [Official docs](https://developer.moneybird.com/api/sales_invoices/)
+  operationId: getAllSalesInvoices
+
+  responses:
+    200:
+      description: Successfully fetched invoices
+      schema:
+        type: object
+        properties:
+          records:
+            type: object
+            properties:
+              test:
+                type: string
+                example: a
+
+    404:
+      description: No records found!
+
