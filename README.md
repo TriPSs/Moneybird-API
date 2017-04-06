@@ -2,6 +2,12 @@
 
 > Moneybird API client for PHP
 
+## Requirements
+To use the Moneybird API client, the following things are required:
++ Get yourself a Moneybird account. [Can be done here!](https://www.moneybird.nl/aanmelden/)
++ Create a personal access token. [Can be done here!](https://moneybird.com/user/applications/new)
++ Get your administration id.
+
 ## Getting started
 
 Requiring the included autoloader. If you're using Composer, you can skip this step.
