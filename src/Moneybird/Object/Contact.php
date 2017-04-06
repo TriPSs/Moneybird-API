@@ -2,7 +2,7 @@
 
 namespace Moneybird\Object;
 
-class Contact {
+class Contact extends BaseObject {
 
     public $id;
 

@@ -2,7 +2,7 @@
 
 namespace Moneybird\Object;
 
-class Attachment {
+class Attachment extends BaseObject {
 
     public $id;
 

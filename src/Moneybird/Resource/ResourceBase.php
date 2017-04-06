@@ -4,6 +4,7 @@ namespace Moneybird\Resource;
 
 use Moneybird\Client;
 use Moneybird\Exception;
+use Moneybird\Object\BaseObject;
 
 abstract class ResourceBase {
 
@@ -113,7 +114,7 @@ abstract class ResourceBase {
     }
 
     /**
-     * Sends a DELETE request to a single Molle API object.
+     * Sends a DELETE request
      *
      * @param string $restResource
      * @param string $id
@@ -139,24 +140,25 @@ abstract class ResourceBase {
     }
 
     /**
-     * Sends a POST request to a single Molle API object to update it.
+     * Sends a PATCH request
      *
      * @param string $restResource
-     * @param string $id
+     * @param string $update This can ether a resource id or for example 'send_invoice', in the case of 'send_invoice'
+     *                       the id has been put in front of the recourse
      * @param string $body
      *
      * @return object|boolean
      * @throws Exception
      */
-    protected function restUpdate($restResource, $id, $body) {
-        if (empty($id)) {
+    protected function restUpdate($restResource, $update, $body) {
+        if (empty($update)) {
             throw new Exception("Invalid resource id.");
         }
 
-        $id     = urlencode($id);
+        $update = urlencode($update);
         $result = $this->performApiCall(
             self::REST_UPDATE,
-            "{$restResource}/{$id}",
+            "{$restResource}/{$update}",
             $body
         );
 
@@ -235,24 +237,18 @@ abstract class ResourceBase {
     /**
      * Create a resource with the remote API.
      *
-     * @param array $data An array containing details on the resource. Fields supported depend on the resource created.
-     * @param array $filters
+     * @param BaseObject|array $data An array|BaseObject containing details on the resource. Fields supported depend on
+     *                               the resource created.
+     * @param array            $filters
      *
      * @return object
      * @throws Exception
      */
-    public function create(array $data = [], array $filters = []) {
-        $encoded = json_encode($data);
+    public function create($data, array $filters = []) {
+        if ($data instanceof BaseObject)
+            $data = [ $data->getKey() => $data->toArray() ];
 
-        if (version_compare(phpversion(), "5.3.0", ">=")) {
-            if (json_last_error() != JSON_ERROR_NONE) {
-                throw new Exception("Error encoding parameters into JSON: '" . json_last_error() . "'.");
-            }
-        } else {
-            if ($encoded === FALSE) {
-                throw new Exception("Error encoding parameters into JSON.");
-            }
-        }
+        $encoded = json_encode($data);
 
         return $this->restCreate($this->getResourcePath(), $encoded, $filters);
     }
@@ -279,7 +275,7 @@ abstract class ResourceBase {
      *
      * @param string $resourceID
      *
-     * @return object
+     * @return bool
      * @throws Exception
      */
     public function delete($resourceID) {
@@ -293,7 +289,7 @@ abstract class ResourceBase {
      * @param int   $page
      * @param int   $perPage
      *
-     * @return ObjectList
+     * @return array
      */
     public function all(array $filters = [], $page = self::DEFAULT_PAGE, $perPage = self::DEFAULT_PER_PAGE) {
         return $this->restList($this->getResourcePath(), $filters, $page, $perPage);
@@ -355,7 +351,10 @@ abstract class ResourceBase {
         if (count($this->child) > 0) {
             $childString = implode("/", $this->child);
 
-            return "{$this->resourcePath}/{$childString}";
+            if (is_null($id))
+                return "{$this->resourcePath}/{$childString}";
+
+            return "{$this->resourcePath}/{$id}/{$childString}";
         }
 
         return $this->resourcePath;
@@ -380,7 +379,7 @@ abstract class ResourceBase {
      * @return $this
      */
     public function with($child) {
-        return $this->withChild(is_string($child) ? $child : $child->id);
+        return $this->withChild($child instanceof BaseObject ? $child->id : $child);
     }
 
     /**

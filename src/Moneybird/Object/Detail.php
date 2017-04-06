@@ -2,7 +2,7 @@
 
 namespace Moneybird\Object;
 
-class Detail {
+class Detail extends BaseObject {
 
     public $id;
 
