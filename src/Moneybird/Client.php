@@ -3,6 +3,7 @@
 namespace Moneybird;
 
 use Moneybird\Exception\IncompatiblePlatformException;
+use Moneybird\Resource\Contacts;
 use Moneybird\Resource\Products;
 use Moneybird\Resource\SalesInvoices;
 use Moneybird\Resource\Undefined as UndefinedResource;
@@ -42,6 +43,13 @@ class Client {
      * @var string
      */
     protected $apiEndpoint = self::API_ENDPOINT;
+
+    /**
+     * RESTful Contacts resource.
+     *
+     * @var Contacts
+     */
+    public $contacts;
 
     /**
      * RESTful Sales invoices resource.
@@ -84,6 +92,7 @@ class Client {
         $this->getCompatibilityChecker()
              ->checkCompatibility();
 
+        $this->contacts      = new Contacts($this);
         $this->salesInvoices = new SalesInvoices($this);
         $this->products      = new Products($this);
     }
