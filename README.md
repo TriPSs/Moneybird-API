@@ -7,15 +7,15 @@
 Requiring the included autoloader. If you're using Composer, you can skip this step.
 
 ```php
-	require "Moneybird/Autoloader.php";
+require "Moneybird/Autoloader.php";
 ```
 	
 Initializing the Moneybird API client, and setting your access key and administration id.
 
 ```php
-	$moneybirdClient = new Client;
-	$moneybirdClient->setAccessToken("YOUR_ACCESS_TOKEN")
-                    ->setAdministrationID("YOUR_ADMINISTRATION_ID");
+$moneybirdClient = new Client;
+$moneybirdClient->setAccessToken("YOUR_ACCESS_TOKEN")
+                ->setAdministrationID("YOUR_ADMINISTRATION_ID");
 ```
 
 ##### Examples:
