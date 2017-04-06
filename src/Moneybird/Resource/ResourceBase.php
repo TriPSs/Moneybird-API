@@ -4,7 +4,6 @@ namespace Moneybird\Resource;
 
 use Moneybird\Client;
 use Moneybird\Exception;
-use Moneybird\Object\ObjectList;
 
 abstract class ResourceBase {
 
@@ -172,7 +171,7 @@ abstract class ResourceBase {
      * @param int   $page
      * @param int   $perPage
      *
-     * @return ObjectList
+     * @return array
      */
     private function restList($restResource, array $filters, $page = self::DEFAULT_PAGE, $perPage = self::DEFAULT_PER_PAGE) {
         $filters = array_merge([
@@ -182,11 +181,7 @@ abstract class ResourceBase {
 
         $result = $this->performApiCall(self::REST_LIST, $restResource, $this->buildQueryString($filters));
 
-        /** @var ObjectList $collection */
-        $collection = new ObjectList();
-
-        $collection->filters = $filters;
-
+        $collection = [];
         foreach ($result as $dataResult) {
             $collection[] = $this->copy($dataResult, $this->getResourceObject());
         }
