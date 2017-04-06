@@ -1,6 +1,6 @@
 # Moneybird API client for PHP
 
-> PHP Client for Moneybird
+> Moneybird API client for PHP
 
 ## Getting started
 
