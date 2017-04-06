@@ -6,7 +6,7 @@
   "host": "moneybird.com",
   "basePath": "/api/v1",
   "info": {
-    "description": "# Introduction\n\nMoneybird API Client for PHP\n\n## Getting started\n\nRequiring the included autoloader. If you're using Composer, you can skip this step.\n\n```php\nrequire \"Moneybird/Autoloader.php\";\n```\n\nInitializing the Moneybird API client, and setting your access key and administration id.\n\n```php\n$moneybirdClient = new Client;\n$moneybirdClient->setAccessToken(\"YOUR_ACCESS_TOKEN\")\n                ->setAdministrationID(\"YOUR_ADMINISTRATION_ID\");\n```\n",
+    "description": "# Introduction\n\nMoneybird API Client for PHP\n\n## Requirements\nTo use the Moneybird API client, the following things are required:\n+ Get yourself a Moneybird account. [Can be done here!](https://www.moneybird.nl/aanmelden/)\n+ Create a personal access token. [Can be done here!](https://moneybird.com/user/applications/new)\n+ Get your administration id.\n\n## Getting started\n\nRequiring the included autoloader. If you're using Composer, you can skip this step.\n\n```php\nrequire \"Moneybird/Autoloader.php\";\n```\n\nInitializing the Moneybird API client, and setting your access key and administration id.\n\n```php\n$moneybirdClient = new Client;\n$moneybirdClient->setAccessToken(\"YOUR_ACCESS_TOKEN\")\n                ->setAdministrationID(\"YOUR_ADMINISTRATION_ID\");\n```\n",
     "version": "1.0.0",
     "title": "Moneybird API Client for PHP",
     "contact": {
@@ -51,7 +51,7 @@
         "operationId": "getAllSalesInvoices",
         "responses": {
           "200": {
-            "description": "Successfully fetched Companies",
+            "description": "Successfully fetched invoices",
             "schema": {
               "type": "object",
               "properties": {

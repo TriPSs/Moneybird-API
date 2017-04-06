@@ -2,6 +2,8 @@
 
 > Moneybird API client for PHP
 
+[Docs and examples](https://tripss.github.io/Moneybird-API/)
+
 ## Requirements
 To use the Moneybird API client, the following things are required:
 + Get yourself a Moneybird account. [Can be done here!](https://www.moneybird.nl/aanmelden/)
