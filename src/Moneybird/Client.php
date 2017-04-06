@@ -30,9 +30,12 @@ class Client {
 
     const HTTP_GET    = "GET";
     const HTTP_POST   = "POST";
+    const HTTP_PATCH  = "PATCH";
     const HTTP_DELETE = "DELETE";
 
-    const HTTP_STATUS_NO_CONTENT = 204;
+    const HTTP_ENTITY_NOT_FOUND = 404;
+    const HTTP_ENTITY_CREATED   = 201;
+    const HTTP_ENTITY_DELETED   = 204;
 
     /**
      * @var string
@@ -115,12 +118,13 @@ class Client {
      *
      * @param $httpMethod
      * @param $apiMethod
+     * @param $queryString
      * @param $httpBody
      *
      * @return string
      * @throws Exception
      */
-    public function performHttpCall($httpMethod, $apiMethod, $httpBody = NULL) {
+    public function performHttpCall($httpMethod, $apiMethod, $queryString, $httpBody = NULL) {
         if (empty($this->accessToken)) {
             throw new Exception("You have not set an access token. Please use setAccessToken() to set the access token.");
         }
@@ -137,7 +141,7 @@ class Client {
             curl_reset($this->ch);
         }
 
-        $url = $this->apiEndpoint . "/" . self::API_VERSION . "/{$this->administrationID}/" . $apiMethod;
+        $url = $this->apiEndpoint . "/" . self::API_VERSION . "/{$this->administrationID}/" . $apiMethod . self::API_EXTENSION . $queryString;
 
         curl_setopt($this->ch, CURLOPT_URL, $url);
         curl_setopt($this->ch, CURLOPT_RETURNTRANSFER, TRUE);

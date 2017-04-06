@@ -8,10 +8,8 @@ use Moneybird\Object\ObjectList;
 
 abstract class ResourceBase {
 
-    const API_EXTENSION = Client::API_EXTENSION;
-
     const REST_CREATE = Client::HTTP_POST;
-    const REST_UPDATE = Client::HTTP_POST;
+    const REST_UPDATE = Client::HTTP_PATCH;
     const REST_READ   = Client::HTTP_GET;
     const REST_LIST   = Client::HTTP_GET;
     const REST_DELETE = Client::HTTP_DELETE;
@@ -37,15 +35,20 @@ abstract class ResourceBase {
     protected $resourcePath;
 
     /**
-     * @var string|null
+     * @var array|null
      */
-    protected $parentId;
+    protected $child;
 
     /**
      * @param Client $api
      */
     public function __construct(Client $api) {
         $this->api = $api;
+
+        if (empty($this->resourcePath)) {
+            $classParts         = explode("\\", get_class($this));
+            $this->resourcePath = $this->fromCamelCase(end($classParts));
+        }
     }
 
     /**
@@ -74,24 +77,28 @@ abstract class ResourceBase {
     private function restCreate($restResource, $body, array $filters) {
         $result = $this->performApiCall(
             self::REST_CREATE,
-            $restResource . $this->buildQueryString($filters),
+            $restResource,
+            $this->buildQueryString($filters),
             $body
         );
 
-        return $this->copy($result, $this->getResourceObject());
+        if ($this->api->getLastHttpResponseStatusCode() === Client::HTTP_ENTITY_CREATED)
+            return $this->copy($result, $this->getResourceObject());
+
+        return $result;
     }
 
     /**
      * Retrieves a single object from the REST API.
      *
-     * @param string $rest_resource Resource name.
-     * @param string $id            Id of the object to retrieve.
+     * @param string $restResource Resource name.
+     * @param string $id           Id of the object to retrieve.
      * @param array  $filters
      *
-     * @return object
+     * @return object|boolean
      * @throws Exception
      */
-    private function restRead($rest_resource, $id, array $filters) {
+    private function restRead($restResource, $id, array $filters) {
         if (empty($id)) {
             throw new Exception("Invalid resource id.");
         }
@@ -99,37 +106,37 @@ abstract class ResourceBase {
         $id     = urlencode($id);
         $result = $this->performApiCall(
             self::REST_READ,
-            "{$rest_resource}/{$id}" . $this->buildQueryString($filters)
+            "{$restResource}/{$id}",
+            $this->buildQueryString($filters)
         );
 
-        return $this->copy($result, $this->getResourceObject());
+        return $result ? $this->copy($result, $this->getResourceObject()) : FALSE;
     }
 
     /**
      * Sends a DELETE request to a single Molle API object.
      *
-     * @param string $rest_resource
+     * @param string $restResource
      * @param string $id
      *
-     * @return object
+     * @return boolean
      * @throws Exception
      */
-    private function restDelete($rest_resource, $id) {
+    private function restDelete($restResource, $id) {
         if (empty($id)) {
             throw new Exception("Invalid resource id.");
         }
 
-        $id     = urlencode($id);
-        $result = $this->performApiCall(
+        $id = urlencode($id);
+        $this->performApiCall(
             self::REST_DELETE,
-            "{$rest_resource}/{$id}"
+            "{$restResource}/{$id}"
         );
 
-        if ($result === NULL) {
-            return NULL;
-        }
+        if ($this->api->getLastHttpResponseStatusCode() === Client::HTTP_ENTITY_DELETED)
+            return TRUE;
 
-        return $this->copy($result, $this->getResourceObject());
+        return FALSE;
     }
 
     /**
@@ -139,7 +146,7 @@ abstract class ResourceBase {
      * @param string $id
      * @param string $body
      *
-     * @return object
+     * @return object|boolean
      * @throws Exception
      */
     protected function restUpdate($restResource, $id, $body) {
@@ -154,7 +161,7 @@ abstract class ResourceBase {
             $body
         );
 
-        return $this->copy($result, $this->getResourceObject());
+        return $result ? $this->copy($result, $this->getResourceObject()) : FALSE;
     }
 
     /**
@@ -173,23 +180,16 @@ abstract class ResourceBase {
                                    "per_page" => $perPage,
                                ], $filters);
 
-        $apiPath = $restResource . $this->buildQueryString($filters);
-
-        $result = $this->performApiCall(self::REST_LIST, $apiPath);
+        $result = $this->performApiCall(self::REST_LIST, $restResource, $this->buildQueryString($filters));
 
         /** @var ObjectList $collection */
         $collection = new ObjectList();
 
-        $collection->page     = $page;
-        $collection->per_page = $perPage;
-        $collection->filters  = $filters;
+        $collection->filters = $filters;
 
         foreach ($result as $dataResult) {
             $collection[] = $this->copy($dataResult, $this->getResourceObject());
         }
-
-        print_r($collection);
-        die;
 
         return $collection;
     }
@@ -267,14 +267,14 @@ abstract class ResourceBase {
      *
      * Will throw a Exception if the resource cannot be found.
      *
-     * @param string $resource_id
+     * @param string $resourceID
      * @param array  $filters
      *
      * @return object
      * @throws Exception
      */
-    public function get($resource_id, array $filters = []) {
-        return $this->restRead($this->getResourcePath(), $resource_id, $filters);
+    public function get($resourceID, array $filters = []) {
+        return $this->restRead($this->getResourcePath(), $resourceID, $filters);
     }
 
     /**
@@ -282,13 +282,13 @@ abstract class ResourceBase {
      *
      * Will throw a Exception if the resource cannot be found.
      *
-     * @param string $resource_id
+     * @param string $resourceID
      *
      * @return object
      * @throws Exception
      */
-    public function delete($resource_id) {
-        return $this->restDelete($this->getResourcePath(), $resource_id);
+    public function delete($resourceID) {
+        return $this->restDelete($this->getResourcePath(), $resourceID);
     }
 
     /**
@@ -309,15 +309,16 @@ abstract class ResourceBase {
      *
      * @param      $httpMethod
      * @param      $apiMethod
+     * @param      $queryString
      * @param null $httpBody
      *
      * @return object
      * @throws Exception
      */
-    protected function performApiCall($httpMethod, $apiMethod, $httpBody = NULL) {
-        $body = $this->api->performHttpCall($httpMethod, $apiMethod, $httpBody);
+    protected function performApiCall($httpMethod, $apiMethod, $queryString = "", $httpBody = NULL) {
+        $body = $this->api->performHttpCall($httpMethod, $apiMethod, $queryString, $httpBody);
 
-        if ($this->api->getLastHttpResponseStatusCode() == Client::HTTP_STATUS_NO_CONTENT) {
+        if ($this->api->getLastHttpResponseStatusCode() == Client::HTTP_ENTITY_NOT_FOUND) {
             return NULL;
         }
 
@@ -345,25 +346,33 @@ abstract class ResourceBase {
     }
 
     /**
-     * @param string $resource_path
+     * @param string $resourcePath
      */
-    public function setResourcePath($resource_path) {
-        $this->resourcePath = strtolower($resource_path);
+    public function setResourcePath($resourcePath) {
+        $this->resourcePath = strtolower($resourcePath);
     }
 
     /**
      * @return string
      * @throws Exception
      */
-    abstract protected function getResourcePath();
+    protected function getResourcePath() {
+        if (count($this->child) > 0) {
+            $childString = implode("/", $this->child);
+
+            return "{$this->resourcePath}/{$childString}";
+        }
+
+        return $this->resourcePath;
+    }
 
     /**
-     * @param string $parent_id
+     * @param string $child
      *
      * @return $this
      */
-    public function withParentId($parent_id) {
-        $this->parentId = $parent_id;
+    public function withChild($child) {
+        $this->child[] = $child;
 
         return $this;
     }
@@ -371,11 +380,29 @@ abstract class ResourceBase {
     /**
      * Set the resource to use a certain parent. Use this method before performing a get() or all() call.
      *
-     * @param Moneybird_API_Object_Payment|object $parent An object with an 'id' property
+     * @param string|object $child An object with an 'id' property
      *
      * @return $this
      */
-    public function with($parent) {
-        return $this->withParentId($parent->id);
+    public function with($child) {
+        return $this->withChild(is_string($child) ? $child : $child->id);
+    }
+
+    /**
+     * Turns the class name into the required path name for Moneybird
+     *
+     * @param $clazz
+     *
+     * @return string
+     */
+    private function fromCamelCase($clazz) {
+        preg_match_all('!([A-Z][A-Z0-9]*(?=$|[A-Z][a-z0-9])|[A-Za-z][a-z0-9]+)!', $clazz, $matches);
+        $ret = $matches[ 0 ];
+
+        foreach ($ret as &$match) {
+            $match = $match == strtoupper($match) ? strtolower($match) : lcfirst($match);
+        }
+
+        return implode('_', $ret);
     }
 }

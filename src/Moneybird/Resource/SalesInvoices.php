@@ -12,8 +12,4 @@ class SalesInvoices extends ResourceBase {
         return new SalesInvoice;
     }
 
-    protected function getResourcePath() {
-        return "sales_invoices" . self::API_EXTENSION;
-    }
-
 }
