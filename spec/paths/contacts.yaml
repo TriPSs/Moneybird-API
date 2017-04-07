@@ -3,7 +3,7 @@ get:
     - Contacts
   summary: Get all contacts
   description: |
-    [Official docs](https://developer.moneybird.com/api/contacts/)
+    [Official docs](https://developer.moneybird.com/api/contacts/#get_contacts)
   operationId: getAllContacts
 
   responses:

@@ -1,0 +1,45 @@
+type: object
+properties:
+  id:
+    type: integer
+
+  administration_id:
+    type: integer
+
+  tax_rate_id:
+    type: integer
+
+  ledger_account_id:
+    type: integer
+
+  amount:
+    type: string
+
+  description:
+    type: string
+
+  price:
+    type: float
+
+  period:
+    type: string
+
+  row_order:
+    type: integer
+
+  total_price_excl_tax_with_discount:
+    type: float
+
+  total_price_excl_tax_with_discount_base:
+    type: float
+
+  tax_report_reference:
+    type: array
+
+  created_at:
+    type: dateTime
+    example: 2017-02-21T17:04:41.056Z
+
+  updated_at:
+    type: dateTime
+    example: 2017-02-21T17:04:41.056Z

@@ -1,2 +1,2 @@
 // Get all contacts
-$moneybirdContact = $moneybirdClient->contacts->get()
+$moneybirdContact = $moneybirdClient->contacts->all()

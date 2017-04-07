@@ -1,0 +1,132 @@
+type: object
+properties:
+
+  id:
+    type: integer
+
+  administration_id:
+    type: integer
+
+  contact_id:
+    type: integer
+
+  contact:
+    $ref: '#/definitions/Contact'
+
+  invoice_id:
+    type: string
+
+  recurring_sales_invoice_id:
+    type: integer
+
+  workflow_id:
+    type: integer
+
+  document_style_id:
+    type: integer
+
+  identity_id:
+    type: integer
+
+  draft_id:
+    type: integer
+
+  state:
+    type: string
+    enum:
+      - open
+      - draft
+      - late
+      - paid
+
+  invoice_date:
+    type: date
+    example: 2017-02-21
+
+  due_date:
+    type: date
+    example: 2017-03-07
+
+  payment_conditions:
+    type: string
+
+  reference:
+    type: string
+
+  language:
+    type: string
+
+  currency:
+    type: string
+
+  discount:
+    type: float
+    default: 0.0
+
+  original_sales_invoice_id:
+    type: integer
+
+  paid_at:
+    type: date
+    example: 2017-03-07
+
+  sent_at:
+    type: date
+    example: 2017-03-07
+
+  created_at:
+    type: dateTime
+    example: 2017-02-21T17:06:07.811Z
+
+  updated_at:
+    type: dateTime
+    example: 2017-02-21T17:06:07.811Z
+
+  details:
+    type: array
+    items:
+      $ref: '#/definitions/Detail'
+
+  payments:
+    type: array
+
+  total_paid:
+    type: float
+
+  total_unpaid:
+    type: float
+
+  total_unpaid_base:
+    type: float
+
+  prices_are_incl_tax:
+    type: boolean
+    default: false
+
+  total_price_excl_tax:
+    type: float
+
+  total_price_excl_tax_base:
+    type: float
+
+  total_price_incl_tax:
+    type: float
+
+  total_price_incl_tax_base:
+    type: float
+
+  url:
+    type: string
+    example: http://moneybird.dev/123/sales_invoices/7090c100b6c2c3a3f0dfb7c5f21431c5fa5b40817c091e4b1941234cc209d8ea/e807722dc8338cfa5b7ca895a78bd49868385b145730027758013f7a780a7890
+
+  custom_fields:
+    type: array
+
+  notes:
+    type: array
+
+  attachments:
+    type: array
+
+  events:
+    type: array

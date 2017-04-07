@@ -10,7 +10,7 @@
 To use the Moneybird API client, the following things are required:
 + Get yourself a Moneybird account. [Can be done here!](https://www.moneybird.nl/aanmelden/)
 + Create a personal access token. [Can be done here!](https://moneybird.com/user/applications/new)
-+ Get your administration id.
++ Get your administration id. (Login in to your account and the id will be in the url)
 
 ## Development
 
