@@ -20,5 +20,5 @@ get:
                 example: a
 
     404:
-      description: No records found!
+      description: Entity not found
 

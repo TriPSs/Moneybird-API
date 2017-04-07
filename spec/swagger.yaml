@@ -54,7 +54,9 @@ consumes:
 x-tagGroups:
   - name: Routes
     tags:
+      - Contacts
       - Sales Invoices
 
 tags:
+  - name: Contacts
   - name: Sales Invoices
