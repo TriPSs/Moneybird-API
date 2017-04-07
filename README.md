@@ -1,4 +1,6 @@
 # Moneybird API client for PHP
+[![Build Status](https://travis-ci.org/TriPSs/moneybird-api.svg?branch=master&style=flat-square)](https://travis-ci.org/TriPSs/moneybird-api?branch=master) [![](https://img.shields.io/github/issues-raw/tripss/moneybird-api.svg?style=flat-square)](https://github.com/tripss/moneybird-api/issues)
+[![Average time to resolve an issue](http://isitmaintained.com/badge/resolution/tripss/moneybird-api.svg)](http://isitmaintained.com/project/tripss/moneybird-api "Average time to resolve an issue") [![Percentage of issues still open](http://isitmaintained.com/badge/open/tripss/moneybird-api.svg)](http://isitmaintained.com/project/tripss/moneybird-api "Percentage of issues still open")
 
 > Moneybird API client for PHP
 
