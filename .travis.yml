@@ -3,9 +3,9 @@ node_js:
   - "node"
 
 deploy:
-  - skip_cleanup: true
-    provider: script
+    provider: pages
     script: npm run deploy
+    github_token: $GITHUB_TOKEN
+    local_dir: docs
     on:
       branch: master
-      
