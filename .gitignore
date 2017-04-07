@@ -4,3 +4,5 @@
 .DS_Store
 composer.phar
 /node_modules
+docs/swagger.json
+docs/swagger.yaml
