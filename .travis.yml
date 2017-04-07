@@ -4,6 +4,7 @@ node_js:
 
 deploy:
     provider: pages
+    skip_cleanup: true
     script: npm run deploy
     github_token: $GITHUB_TOKEN
     local_dir: docs
