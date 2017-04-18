@@ -31,7 +31,7 @@ post:
     201:
       description: Entity creation was successful
       schema:
-        $ref: '#/definitions/Contact'
+        $ref: '#/definitions/SalesInvoice'
 
     404:
       description: Entity not found

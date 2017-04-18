@@ -5,6 +5,7 @@ namespace Moneybird\Resource;
 use Moneybird\Exception;
 use Moneybird\Object\BaseObject;
 use Moneybird\Object\Contact;
+use Moneybird\Object\Payment;
 use Moneybird\Object\SalesInvoice;
 
 class SalesInvoices extends ResourceBase {
@@ -19,6 +20,11 @@ class SalesInvoices extends ResourceBase {
      * @var Contact
      */
     private $contact;
+
+    /**
+     * @var Payment
+     */
+    private $payment;
 
     /**
      * @var SalesInvoice
@@ -46,6 +52,20 @@ class SalesInvoices extends ResourceBase {
     }
 
     /**
+     * Set a payment for the invoice
+     *
+     * @param Payment $payment
+     *
+     * @return $this
+     */
+    public function setPayment(Payment $payment) {
+        $this->payment = $payment;
+
+        return $this;
+    }
+
+
+    /**
      * Set the sales invoice to send
      *
      * @param SalesInvoice $invoice
@@ -71,8 +91,9 @@ class SalesInvoices extends ResourceBase {
      * @throws Exception
      */
     public function send($invoice = NULL) {
-        if (empty($invoice) && empty($this->invoice))
-            throw new Exception("No valid sales invoice id given!");
+        if (empty($invoice) && empty($this->invoice)) {
+            throw new Exception("No valid sales invoice given!");
+        }
 
         $this->with(empty($invoice) ? $this->invoice : $invoice);
 
@@ -93,7 +114,29 @@ class SalesInvoices extends ResourceBase {
             $body[ "invoice_date" ]      = $this->scheduleDate;
         }
 
-        return $this->restUpdate($this->getResourcePath(), "send_invoice", $body);
+        return $this->restUpdate($this->getResourcePath(), "send_invoice", [ "sales_invoice_sending" => $body ]);
+    }
+
+    /**
+     * Registers a payment
+     *
+     * @param SalesInvoice|string $invoice
+     *
+     * @return bool|object
+     * @throws Exception
+     */
+    public function registerPayment($invoice = NULL) {
+        if (empty($invoice) && empty($this->invoice)) {
+            throw new Exception("No valid sales invoice given!");
+        }
+
+        $this->with(empty($invoice) ? $this->invoice : $invoice);
+
+        if (empty($this->payment)) {
+            throw new Exception("No valid payment given!");
+        }
+
+        return $this->restUpdate($this->getResourcePath(), "register_payment", [ $this->payment->getKey() => $this->payment->toArray() ]);
     }
 
 }
