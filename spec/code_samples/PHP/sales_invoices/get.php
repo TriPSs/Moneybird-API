@@ -1,3 +1,6 @@
+// Get all invoices
+$moneybirdClient->salesInvoices->all();
+
 // Get all invoices of last year
 $moneybirdClient->salesInvoices->all(["filter" => "prev_year"]);
 

@@ -1,0 +1,37 @@
+get:
+  tags:
+    - Contacts
+  summary: Get all contacts
+  description: |
+    [Official docs](https://developer.moneybird.com/api/contacts/#get_contacts)
+  operationId: getAllContacts
+
+  responses:
+    200:
+      description: Request was successful
+      schema:
+        type: array
+        items:
+          $ref: '#/definitions/Contact'
+
+    404:
+      description: Entity not found
+
+post:
+  tags:
+    - Contacts
+  summary: Create a new contact
+  description: |
+    [Official docs](https://developer.moneybird.com/api/contacts/#post_contacts)
+
+  operationId: createNewContact
+
+  responses:
+    201:
+      description: Entity creation was successful
+      schema:
+        $ref: '#/definitions/Contact'
+
+    404:
+      description: Entity not found
+

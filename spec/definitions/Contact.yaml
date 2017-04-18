@@ -1,0 +1,147 @@
+type: object
+properties:
+
+  id:
+    type: integer
+
+  administration_id:
+    type: integer
+
+  company_name:
+    type: string
+
+  firstname:
+    type: string
+
+  lastname:
+    type: string
+
+  address1:
+    type: string
+
+  address2:
+    type: string
+
+  zipcode:
+    type: string
+
+  city:
+    type: string
+
+  country:
+    type: string
+    default: NL
+
+  phone:
+    type: string
+
+  delivery_method:
+    type: string
+    enum:
+      - Email
+      - Post
+      - Manual
+    default: Email
+
+  customer_id:
+    type: number
+
+  tax_number:
+    type: string
+
+  chamber_of_commerce:
+    type: string
+
+  bank_account:
+    type: string
+
+  attention:
+    type: string
+
+  email:
+    type: string
+
+  email_ubl:
+    type: boolean
+    default: true
+
+  send_invoices_to_attention:
+    type: string
+
+  send_invoices_to_email:
+    type: string
+
+  send_estimates_to_attention:
+    type: string
+
+  send_estimates_to_email:
+    type: string
+
+  sepa_active:
+    type: boolean
+    default: false
+
+  sepa_iban:
+    type: string
+
+  sepa_iban_account_name:
+    type: string
+
+  sepa_bic:
+    type: string
+
+  sepa_mandate_id:
+    type: string
+
+  sepa_mandate_date:
+    type: string
+    default: null
+
+  sepa_sequence_type:
+    type: string
+    enum:
+      - RCUR
+      - FRST
+      - OOFF
+      - FNAL
+
+  credit_card_number:
+    type: string
+
+  credit_card_reference:
+    type: string
+
+  credit_card_type:
+    type: string
+    default: null
+
+  tax_number_validated_at:
+    type: string
+    default: null
+
+  created_at:
+    type: dateTime
+    example: 2017-02-21T17:04:41.056Z
+
+  updated_at:
+    type: dateTime
+    example: 2017-02-21T17:04:41.056Z
+
+  sales_invoices_url:
+    type: string
+    example: http://moneybird.dev/123/sales_invoices/f47bd2195232e24dfebca0222a6a006cf8ff5af12b3087583ef5672a9cef7b66/all
+
+  invoice_workflow_id:
+    type: integer
+
+  estimate_workflow_id:
+    type: integer
+
+  notes:
+    type: array
+
+  custom_fields:
+    type: array
+
+  events:
+    type: array

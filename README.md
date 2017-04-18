@@ -1,4 +1,6 @@
 # Moneybird API client for PHP
+[![Build Status](https://travis-ci.org/TriPSs/Moneybird-API.svg?branch=master&style=flat-square)](https://travis-ci.org/TriPSs/Moneybird-API?branch=master) [![](https://img.shields.io/github/issues-raw/tripss/moneybird-api.svg?style=flat-square)](https://github.com/tripss/moneybird-api/issues)
+[![Average time to resolve an issue](http://isitmaintained.com/badge/resolution/tripss/moneybird-api.svg?style=flat-square)](http://isitmaintained.com/project/tripss/moneybird-api "Average time to resolve an issue") [![Percentage of issues still open](http://isitmaintained.com/badge/open/tripss/moneybird-api.svg)](http://isitmaintained.com/project/tripss/moneybird-api "Percentage of issues still open")
 
 > Moneybird API client for PHP
 
@@ -8,7 +10,7 @@
 To use the Moneybird API client, the following things are required:
 + Get yourself a Moneybird account. [Can be done here!](https://www.moneybird.nl/aanmelden/)
 + Create a personal access token. [Can be done here!](https://moneybird.com/user/applications/new)
-+ Get your administration id.
++ Get your administration id. (Login in to your account and the id will be in the url)
 
 ## Development
 

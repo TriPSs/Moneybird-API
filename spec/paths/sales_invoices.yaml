@@ -3,22 +3,38 @@ get:
     - Sales Invoices
   summary: Sales Invoices
   description: |
-    [Official docs](https://developer.moneybird.com/api/sales_invoices/)
+    [Official docs](https://developer.moneybird.com/api/sales_invoices/#get_sales_invoices)
   operationId: getAllSalesInvoices
 
   responses:
     200:
-      description: Successfully fetched invoices
+      description: Request was successful
       schema:
-        type: object
-        properties:
-          records:
-            type: object
-            properties:
-              test:
-                type: string
-                example: a
+        type: array
+        items:
+          $ref: '#/definitions/SalesInvoice'
 
     404:
-      description: No records found!
+      description: Entity not found
+
+
+post:
+  tags:
+    - Sales Invoices
+  summary: Create a new sales invoice
+  description: |
+    [Official docs](https://developer.moneybird.com/api/contacts/#post_sales_invoices)
+
+  operationId: createNewSalesInvoice
+
+  responses:
+    201:
+      description: Entity creation was successful
+      schema:
+        $ref: '#/definitions/SalesInvoice'
+
+    404:
+      description: Entity not found
+
+
 
