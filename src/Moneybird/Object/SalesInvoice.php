@@ -127,12 +127,17 @@ class SalesInvoice extends BaseObject {
     /**
      * Adds a contact to the invoice
      *
-     * @param Contact $contact
+     * @param Contact|integer $contact
      *
      * @return $this
      */
-    public function addContact(Contact $contact) {
-        $this->contact_id = $contact->id;
+    public function addContact($contact) {
+        if ($contact instanceof Contact) {
+            $this->contact_id = $contact->id;
+
+        } else {
+            $this->contact_id = $contact;
+        }
 
         return $this;
     }

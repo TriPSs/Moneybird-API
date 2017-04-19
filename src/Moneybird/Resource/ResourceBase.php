@@ -244,9 +244,10 @@ abstract class ResourceBase {
      * @return object
      * @throws Exception
      */
-    public function create($data, array $filters = []) {
-        if ($data instanceof BaseObject)
+    public function create($data = NULL, array $filters = []) {
+        if ($data instanceof BaseObject) {
             $data = [ $data->getKey() => $data->toArray() ];
+        }
 
         $encoded = json_encode($data);
 
