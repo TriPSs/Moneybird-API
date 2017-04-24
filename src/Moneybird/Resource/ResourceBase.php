@@ -159,6 +159,7 @@ abstract class ResourceBase {
         $result = $this->performApiCall(
             self::REST_UPDATE,
             "{$restResource}/{$update}",
+            NULL,
             $body
         );
 
@@ -325,10 +326,12 @@ abstract class ResourceBase {
         }
 
         if (!empty($object->error)) {
-            $exception = new Exception("Error executing API call ({$object->error->type}): {$object->error->message}.");
+            $exception = new Exception("Error executing API call: {$object->error}.");
 
-            if (!empty($object->error->field)) {
-                $exception->setField($object->error->field);
+            if (!empty($object->errors)) {
+                foreach ($object->errors as $errorKey => $errorMessage) {
+                    $exception->setField($errorKey, $errorMessage);
+                }
             }
 
             throw $exception;

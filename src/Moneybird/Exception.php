@@ -7,20 +7,23 @@ class Exception extends \Exception {
     /**
      * @var string
      */
-    protected $_field;
+    protected $fields = [];
 
     /**
      * @return string
      */
-    public function getField() {
-        return $this->_field;
+    public function getFields() {
+        return $this->fields;
     }
 
     /**
-     * @param string $field
+     * @param string $errorField
+     * @param string $errorMessage
      */
-    public function setField($field) {
-        $this->_field = (string)$field;
+    public function setField($errorField, $errorMessage) {
+        $this->fields[$errorField] = (string)$errorMessage;
     }
+
+
 
 }
