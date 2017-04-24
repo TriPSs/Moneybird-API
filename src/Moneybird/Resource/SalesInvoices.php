@@ -8,6 +8,12 @@ use Moneybird\Object\Contact;
 use Moneybird\Object\Payment;
 use Moneybird\Object\SalesInvoice;
 
+/**
+ * Class SalesInvoices
+ *
+ * @package Moneybird\Resource
+ * @method SalesInvoice create($data = NULL, array $filters = [])
+ */
 class SalesInvoices extends ResourceBase {
 
     /**
