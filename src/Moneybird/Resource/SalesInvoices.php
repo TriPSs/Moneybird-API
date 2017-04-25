@@ -22,6 +22,8 @@ class SalesInvoices extends ResourceBase {
      */
     private $scheduleDate;
 
+    private $emailMessage;
+
     /**
      * @var Contact
      */
@@ -70,7 +72,6 @@ class SalesInvoices extends ResourceBase {
         return $this;
     }
 
-
     /**
      * Set the sales invoice to send
      *
@@ -86,6 +87,10 @@ class SalesInvoices extends ResourceBase {
 
     public function setScheduleDate($scheduleDate) {
         $this->scheduleDate = $scheduleDate;
+    }
+
+    public function setMessage($message) {
+        $this->emailMessage = $message;
     }
 
     /**
@@ -118,6 +123,10 @@ class SalesInvoices extends ResourceBase {
         if (!empty($this->scheduleDate)) {
             $body[ "sending_scheduled" ] = TRUE;
             $body[ "invoice_date" ]      = $this->scheduleDate;
+        }
+
+        if (!empty($this->emailMessage)) {
+            $body[ "email_message" ] = $this->emailMessage;
         }
 
         return $this->restUpdate($this->getResourcePath(), "send_invoice", [ "sales_invoice_sending" => $body ]);
