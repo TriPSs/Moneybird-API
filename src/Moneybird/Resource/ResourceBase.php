@@ -155,12 +155,13 @@ abstract class ResourceBase {
             throw new Exception("Invalid resource id.");
         }
 
-        $update = urlencode($update);
-        $result = $this->performApiCall(
+        $update  = urlencode($update);
+        $encoded = json_encode($body);
+        $result  = $this->performApiCall(
             self::REST_UPDATE,
             "{$restResource}/{$update}",
             NULL,
-            $body
+            $encoded
         );
 
         return $result ? $this->copy($result, $this->getResourceObject()) : FALSE;
