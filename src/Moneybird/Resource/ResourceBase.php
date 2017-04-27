@@ -356,10 +356,7 @@ abstract class ResourceBase {
         if (count($this->child) > 0) {
             $childString = implode("/", $this->child);
 
-            if (is_null($id))
-                return "{$this->resourcePath}/{$childString}";
-
-            return "{$this->resourcePath}/{$id}/{$childString}";
+            return "{$this->resourcePath}/{$childString}";
         }
 
         return $this->resourcePath;
@@ -371,7 +368,9 @@ abstract class ResourceBase {
      * @return $this
      */
     public function withChild($child) {
-        $this->child[] = $child;
+        if (!in_array($child, $this->child)) {
+            $this->child[] = $child;
+        }
 
         return $this;
     }
