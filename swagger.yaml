@@ -1,0 +1,505 @@
+swagger: '2.0'
+schemes:
+  - https
+host: moneybird.com
+basePath: /api/v1
+info:
+  description: |
+    # Introduction
+
+    Moneybird API Client for PHP
+
+    ## Requirements
+    To use the Moneybird API client, the following things are required:
+    + Get yourself a Moneybird account. [Can be done here!](https://www.moneybird.nl/aanmelden/)
+    + Create a personal access token. [Can be done here!](https://moneybird.com/user/applications/new)
+    + Get your administration id. (Login in to your account and the id will be in the url)
+
+    ## Getting started
+
+    Requiring the included autoloader. If you're using Composer, you can skip this step.
+
+    ```php
+    require "Moneybird/Autoloader.php";
+    ```
+
+    Initializing the Moneybird API client, and setting your access key and administration id.
+
+    ```php
+    $moneybirdClient = new Client;
+    $moneybirdClient->setAccessToken("YOUR_ACCESS_TOKEN")
+                    ->setAdministrationID("YOUR_ADMINISTRATION_ID");
+    ```
+  version: 1.0.0
+  title: Moneybird API Client for PHP
+  contact:
+    email: t.bokdam@seronaris.nl
+    url: 'https://github.com/TriPss'
+  license:
+    name: MIT
+    url: 'https://github.com/TriPSs/Moneybird-API/blob/master/LICENSE'
+  x-logo:
+    url: 'https://www.moneybird.nl/data/share/moneybird-85febefd.png'
+produces:
+  - application/json
+consumes:
+  - application/json
+x-tagGroups:
+  - name: Routes
+    tags:
+      - Contacts
+      - Sales Invoices
+tags:
+  - name: Contacts
+  - name: Sales Invoices
+paths:
+  /contacts:
+    get:
+      tags:
+        - Contacts
+      summary: Get all contacts
+      description: |
+        [Official docs](https://developer.moneybird.com/api/contacts/#get_contacts)
+      operationId: getAllContacts
+      responses:
+        '200':
+          description: Request was successful
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Contact'
+        '404':
+          description: Entity not found
+      x-code-samples:
+        - lang: PHP
+          source: |
+            // Get all contacts
+            $moneybirdContact = $moneybirdClient->contacts->all()
+    post:
+      tags:
+        - Contacts
+      summary: Create a new contact
+      description: |
+        [Official docs](https://developer.moneybird.com/api/contacts/#post_contacts)
+      operationId: createNewContact
+      responses:
+        '201':
+          description: Entity creation was successful
+          schema:
+            $ref: '#/definitions/Contact'
+        '404':
+          description: Entity not found
+      x-code-samples:
+        - lang: PHP
+          source: |-
+            use Moneybird\Object\Contact as MoneybirdContact;
+
+            // Create a new contact
+            $moneybirdContact = new MoneybirdContact();
+            $moneybirdContact->company_name = "Test B.V.";  // Required
+            $moneybirdContact->email = "test@bv.nl";
+            $moneybirdContact->address1 = "Street 15";
+            $moneybirdContact->city = "City";
+            $moneybirdContact->zipcode = "1234AA";
+            $moneybirdContact->phone = "0612345678";
+            $moneybirdContact->firstname = "John";
+            $moneybirdContact->lastname = "Doe";
+
+            $moneybirdContact = $moneybirdClient->contacts->create($moneybirdContact);
+  /sales_invoices:
+    get:
+      tags:
+        - Sales Invoices
+      summary: Sales Invoices
+      description: |
+        [Official docs](https://developer.moneybird.com/api/sales_invoices/#get_sales_invoices)
+      operationId: getAllSalesInvoices
+      responses:
+        '200':
+          description: Request was successful
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/SalesInvoice'
+        '404':
+          description: Entity not found
+      x-code-samples:
+        - lang: PHP
+          source: |-
+            // Get all invoices
+            $moneybirdClient->salesInvoices->all();
+
+            // Get all invoices of last year
+            $moneybirdClient->salesInvoices->all(["filter" => "prev_year"]);
+
+            // Get all invoices of a contact
+            $moneybirdClient->salesInvoices->all([ "filter" => "contact_id:123456789101112234" ]);
+    post:
+      tags:
+        - Sales Invoices
+      summary: Create a new sales invoice
+      description: |
+        [Official docs](https://developer.moneybird.com/api/contacts/#post_sales_invoices)
+      operationId: createNewSalesInvoice
+      responses:
+        '201':
+          description: Entity creation was successful
+          schema:
+            $ref: '#/definitions/SalesInvoice'
+        '404':
+          description: Entity not found
+      x-code-samples:
+        - lang: PHP
+          source: |-
+            use Moneybird\Object\SalesInvoice as MoneybirdSalesInvoice;
+            use Moneybird\Object\Contact as MoneybirdContact;
+            use Moneybird\Object\Detail as MoneybirdDetail;
+
+            // Create the invoice
+            $nInvoice = new MoneybirdSalesInvoice();
+            $nInvoice->reference = "Invoice created with Moneybird API Client for PHP";
+
+            // Create products
+            $productOne = new MoneybirdDetail();
+            $productOne->description = "First product";
+            $productOne->price = 10.5;
+
+            $productTwo = new MoneybirdDetail();
+            $productTwo->description = "Second product";
+            $productTwo->price = 15;
+
+            // Add products to invoice
+            $nInvoice->addDetail($productOne);
+            $nInvoice->addDetail($productTwo);
+
+            // OR
+            $nInvoice->addDetails([ $productOne, $productTwo ]);
+
+            // Add a contact to the invoice
+            $contact = new MoneybirdContact()
+            $contact->id = 12345678;
+
+            $nInvoice->addContact($contact);
+
+            // OR
+
+            $nInvoice->addContact("12345678");
+
+            // Create the invoice
+            $moneybirdInvoice = $moneybirdClient->salesInvoices->create($nInvoice)
+  '/sales_invoices/{id}':
+    get:
+      tags:
+        - Sales Invoices
+      summary: Sales Invoice
+      description: |
+        [Official docs](https://developer.moneybird.com/api/sales_invoices/#get_sales_invoices_id)
+      operationId: getSalesInvoice
+      responses:
+        '200':
+          description: Request was successful
+          schema:
+            $ref: '#/definitions/SalesInvoice'
+        '404':
+          description: Entity not found
+      x-code-samples:
+        - lang: PHP
+          source: |
+            // Get one
+            $moneybirdClient->salesInvoices->get("invoice ID");
+  '/sales_invoices/{id}/register_payment':
+    patch:
+      tags:
+        - Sales Invoices
+      summary: Register payment
+      description: |
+        [Official docs](https://developer.moneybird.com/api/sales_invoices/#patch_sales_invoices_id_register_payment)
+      operationId: registerPayment
+      responses:
+        '200':
+          description: Request was successful
+          schema:
+            $ref: '#/definitions/SalesInvoice'
+        '404':
+          description: Entity not found
+      x-code-samples:
+        - lang: PHP
+          source: |-
+            // Create Payment
+            $moneybirdPayment = new MoneybirdPayment();
+            $moneybirdPayment->price = 200;
+            $moneybirdPayment->payment_date = date("Y-m-d");
+
+            // Register the Payment
+            $moneybirdClient->salesInvoices->setPayment($moneybirdPayment)
+                            ->registerPayment("invoice ID" || $invoice);
+definitions:
+  Contact:
+    type: object
+    properties:
+      id:
+        type: integer
+      administration_id:
+        type: integer
+      company_name:
+        type: string
+      firstname:
+        type: string
+      lastname:
+        type: string
+      address1:
+        type: string
+      address2:
+        type: string
+      zipcode:
+        type: string
+      city:
+        type: string
+      country:
+        type: string
+        default: NL
+      phone:
+        type: string
+      delivery_method:
+        type: string
+        enum:
+          - Email
+          - Post
+          - Manual
+        default: Email
+      customer_id:
+        type: number
+      tax_number:
+        type: string
+      chamber_of_commerce:
+        type: string
+      bank_account:
+        type: string
+      attention:
+        type: string
+      email:
+        type: string
+      email_ubl:
+        type: boolean
+        default: true
+      send_invoices_to_attention:
+        type: string
+      send_invoices_to_email:
+        type: string
+      send_estimates_to_attention:
+        type: string
+      send_estimates_to_email:
+        type: string
+      sepa_active:
+        type: boolean
+        default: false
+      sepa_iban:
+        type: string
+      sepa_iban_account_name:
+        type: string
+      sepa_bic:
+        type: string
+      sepa_mandate_id:
+        type: string
+      sepa_mandate_date:
+        type: string
+        default: null
+      sepa_sequence_type:
+        type: string
+        enum:
+          - RCUR
+          - FRST
+          - OOFF
+          - FNAL
+      credit_card_number:
+        type: string
+      credit_card_reference:
+        type: string
+      credit_card_type:
+        type: string
+        default: null
+      tax_number_validated_at:
+        type: string
+        default: null
+      created_at:
+        type: dateTime
+        example: 2017-02-21T17:04:41.056Z
+      updated_at:
+        type: dateTime
+        example: 2017-02-21T17:04:41.056Z
+      sales_invoices_url:
+        type: string
+        example: 'http://moneybird.dev/123/sales_invoices/f47bd2195232e24dfebca0222a6a006cf8ff5af12b3087583ef5672a9cef7b66/all'
+      invoice_workflow_id:
+        type: integer
+      estimate_workflow_id:
+        type: integer
+      notes:
+        type: array
+      custom_fields:
+        type: array
+      events:
+        type: array
+  Detail:
+    type: object
+    properties:
+      id:
+        type: integer
+      administration_id:
+        type: integer
+      tax_rate_id:
+        type: integer
+      ledger_account_id:
+        type: integer
+      amount:
+        type: string
+      description:
+        type: string
+      price:
+        type: float
+      period:
+        type: string
+      row_order:
+        type: integer
+      total_price_excl_tax_with_discount:
+        type: float
+      total_price_excl_tax_with_discount_base:
+        type: float
+      tax_report_reference:
+        type: array
+      created_at:
+        type: dateTime
+        example: 2017-02-21T17:04:41.056Z
+      updated_at:
+        type: dateTime
+        example: 2017-02-21T17:04:41.056Z
+  Payment:
+    type: object
+    properties:
+      id:
+        type: integer
+      administration_id:
+        type: integer
+      invoice_type:
+        type: string
+      invoice_id:
+        type: string
+      financial_account_id:
+        type: string
+      user_id:
+        type: string
+      payment_transaction_id:
+        type: string
+      price:
+        type: string
+      price_base:
+        type: string
+      payment_date:
+        type: string
+      credit_invoice_id:
+        type: string
+      financial_mutation_id:
+        type: string
+      created_at:
+        type: dateTime
+        example: 2017-02-21T17:04:41.056Z
+      updated_at:
+        type: dateTime
+        example: 2017-02-21T17:04:41.056Z
+  SalesInvoice:
+    type: object
+    properties:
+      id:
+        type: integer
+      administration_id:
+        type: integer
+      contact_id:
+        type: integer
+      contact:
+        $ref: '#/definitions/Contact'
+      invoice_id:
+        type: string
+      recurring_sales_invoice_id:
+        type: integer
+      workflow_id:
+        type: integer
+      document_style_id:
+        type: integer
+      identity_id:
+        type: integer
+      draft_id:
+        type: integer
+      state:
+        type: string
+        enum:
+          - open
+          - draft
+          - late
+          - paid
+      invoice_date:
+        type: date
+        example: 2017-02-21T00:00:00.000Z
+      due_date:
+        type: date
+        example: 2017-03-07T00:00:00.000Z
+      payment_conditions:
+        type: string
+      reference:
+        type: string
+      language:
+        type: string
+      currency:
+        type: string
+      discount:
+        type: float
+        default: 0
+      original_sales_invoice_id:
+        type: integer
+      paid_at:
+        type: date
+        example: 2017-03-07T00:00:00.000Z
+      sent_at:
+        type: date
+        example: 2017-03-07T00:00:00.000Z
+      created_at:
+        type: dateTime
+        example: 2017-02-21T17:06:07.811Z
+      updated_at:
+        type: dateTime
+        example: 2017-02-21T17:06:07.811Z
+      details:
+        type: array
+        items:
+          $ref: '#/definitions/Detail'
+      payments:
+        type: array
+        items:
+          $ref: '#/definitions/Payment'
+      total_paid:
+        type: float
+      total_unpaid:
+        type: float
+      total_unpaid_base:
+        type: float
+      prices_are_incl_tax:
+        type: boolean
+        default: false
+      total_price_excl_tax:
+        type: float
+      total_price_excl_tax_base:
+        type: float
+      total_price_incl_tax:
+        type: float
+      total_price_incl_tax_base:
+        type: float
+      url:
+        type: string
+        example: 'http://moneybird.dev/123/sales_invoices/7090c100b6c2c3a3f0dfb7c5f21431c5fa5b40817c091e4b1941234cc209d8ea/e807722dc8338cfa5b7ca895a78bd49868385b145730027758013f7a780a7890'
+      custom_fields:
+        type: array
+      notes:
+        type: array
+      attachments:
+        type: array
+      events:
+        type: array
