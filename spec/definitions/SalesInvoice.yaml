@@ -89,6 +89,8 @@ properties:
 
   payments:
     type: array
+    items:
+      $ref: '#/definitions/Payment'
 
   total_paid:
     type: float

@@ -1,0 +1,16 @@
+patch:
+  tags:
+    - Sales Invoices
+  summary: Register payment
+  description: |
+    [Official docs](https://developer.moneybird.com/api/sales_invoices/#patch_sales_invoices_id_register_payment)
+  operationId: registerPayment
+
+  responses:
+    200:
+      description: Request was successful
+      schema:
+        $ref: '#/definitions/SalesInvoice'
+
+    404:
+      description: Entity not found

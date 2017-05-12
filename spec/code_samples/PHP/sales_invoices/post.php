@@ -28,5 +28,9 @@ $contact->id = 12345678;
 
 $nInvoice->addContact($contact);
 
+// OR
+
+$nInvoice->addContact("12345678");
+
 // Create the invoice
 $moneybirdInvoice = $moneybirdClient->salesInvoices->create($nInvoice)

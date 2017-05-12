@@ -1,0 +1,45 @@
+type: object
+properties:
+  id:
+    type: integer
+
+  administration_id:
+    type: integer
+
+  invoice_type:
+    type: string
+
+  invoice_id:
+    type: string
+
+  financial_account_id:
+    type: string
+
+  user_id:
+    type: string
+
+  payment_transaction_id:
+    type: string
+
+  price:
+    type: string
+
+  price_base:
+    type: string
+
+  payment_date:
+    type: string
+
+  credit_invoice_id:
+    type: string
+
+  financial_mutation_id:
+    type: string
+
+  created_at:
+    type: dateTime
+    example: 2017-02-21T17:04:41.056Z
+
+  updated_at:
+    type: dateTime
+    example: 2017-02-21T17:04:41.056Z

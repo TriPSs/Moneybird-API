@@ -1,0 +1,16 @@
+get:
+  tags:
+    - Sales Invoices
+  summary: Sales Invoice
+  description: |
+    [Official docs](https://developer.moneybird.com/api/sales_invoices/#get_sales_invoices_id)
+  operationId: getSalesInvoice
+
+  responses:
+    200:
+      description: Request was successful
+      schema:
+        $ref: '#/definitions/SalesInvoice'
+
+    404:
+      description: Entity not found
