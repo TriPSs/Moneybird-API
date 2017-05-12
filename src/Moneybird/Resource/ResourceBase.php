@@ -338,6 +338,8 @@ abstract class ResourceBase {
             throw $exception;
         }
 
+        $this->clear();
+
         return $object;
     }
 
@@ -402,5 +404,12 @@ abstract class ResourceBase {
         }
 
         return implode('_', $ret);
+    }
+
+    /**
+     * Clears some vars after the request
+     */
+    private function clear() {
+        $this->child = [];
     }
 }
