@@ -110,11 +110,13 @@ class SalesInvoices extends ResourceBase {
 
         $body = [];
         if (!empty($this->contact)) {
-            if (empty($this->contact->email))
+            if (empty($this->contact->email)) {
                 throw new Exception("Contact has no email address!");
+            }
 
-            if (empty($this->contact->delivery_method))
+            if (empty($this->contact->delivery_method)) {
                 throw new Exception("Contact has no delivery method!");
+            }
 
             $body[ "email_address" ]   = $this->contact->email;
             $body[ "delivery_method" ] = $this->contact->delivery_method;
@@ -129,7 +131,14 @@ class SalesInvoices extends ResourceBase {
             $body[ "email_message" ] = $this->emailMessage;
         }
 
-        return $this->restUpdate($this->getResourcePath(), "send_invoice", [ "sales_invoice_sending" => $body ]);
+        if (count($body) > 0) {
+            $body = [ "sales_invoice_sending" => $body ];
+
+        } else {
+            $body = NULL;
+        }
+
+        return $this->restUpdate($this->getResourcePath(), "send_invoice", $body);
     }
 
     /**
