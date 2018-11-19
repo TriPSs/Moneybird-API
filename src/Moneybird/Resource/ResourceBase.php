@@ -37,7 +37,7 @@ abstract class ResourceBase {
     /**
      * @var array|null
      */
-    protected $child;
+    protected $child = [];
 
     /**
      * @param Client $api
@@ -82,8 +82,9 @@ abstract class ResourceBase {
             $body
         );
 
-        if ($this->api->getLastHttpResponseStatusCode() === Client::HTTP_ENTITY_CREATED)
+        if ($this->api->getLastHttpResponseStatusCode() === Client::HTTP_ENTITY_CREATED) {
             return $this->copy($result, $this->getResourceObject());
+        }
 
         return $result;
     }
@@ -133,8 +134,9 @@ abstract class ResourceBase {
             "{$restResource}/{$id}"
         );
 
-        if ($this->api->getLastHttpResponseStatusCode() === Client::HTTP_ENTITY_DELETED)
+        if ($this->api->getLastHttpResponseStatusCode() === Client::HTTP_ENTITY_DELETED) {
             return TRUE;
+        }
 
         return FALSE;
     }
@@ -150,13 +152,13 @@ abstract class ResourceBase {
      * @return object|boolean
      * @throws Exception
      */
-    protected function restUpdate($restResource, $update, $body) {
+    protected function restUpdate($restResource, $update, $body = NULL) {
         if (empty($update)) {
             throw new Exception("Invalid resource id.");
         }
 
         $update  = urlencode($update);
-        $encoded = json_encode($body);
+        $encoded = !is_null($body) ? json_encode($body) : $body;
         $result  = $this->performApiCall(
             self::REST_UPDATE,
             "{$restResource}/{$update}",
@@ -179,9 +181,9 @@ abstract class ResourceBase {
      */
     private function restList($restResource, array $filters, $page = self::DEFAULT_PAGE, $perPage = self::DEFAULT_PER_PAGE) {
         $filters = array_merge([
-                                   "page"     => $page,
-                                   "per_page" => $perPage,
-                               ], $filters);
+            "page"     => $page,
+            "per_page" => $perPage,
+        ], $filters);
 
         $result = $this->performApiCall(self::REST_LIST, $restResource, $this->buildQueryString($filters));
 
@@ -199,16 +201,21 @@ abstract class ResourceBase {
      * @param object $apiResult
      * @param object $object
      *
-     * @return object
+     * @return object|bool
      */
     protected function copy($apiResult, $object) {
+        if (is_string($apiResult)) {
+            return TRUE;
+        }
+
         foreach ($apiResult as $property => $value) {
             if (is_object($value) || is_array($value)) {
                 if (is_object($value)) {
                     $className = "Moneybird\\Object\\" . ucfirst($property);
 
-                    if (class_exists($className))
+                    if (class_exists($className)) {
                         $object->$property = $this->copy($value, new $className);
+                    }
 
                 } else if (is_array($value)) {
                     $className = "Moneybird\\Object\\" . ucfirst(substr($property, 0, -1));
@@ -219,11 +226,13 @@ abstract class ResourceBase {
                         }
                     }
 
-                } else
+                } else {
                     $object->$property = $value;
+                }
 
-            } else
+            } else {
                 $object->$property = $value;
+            }
         }
 
         return $object;
